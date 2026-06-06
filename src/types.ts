@@ -64,9 +64,28 @@ export interface HlCancelParams {
   oid?: number;
 }
 
+/** Native HL order_type — a plain limit or a trigger leg (TP/SL). */
+export type HlOrderType =
+  | { limit: { tif: "Gtc" | "Ioc" | "Alo" } }
+  | { trigger: { isMarket: boolean; triggerPx: number | string; tpsl: "tp" | "sl" } };
+
+/** One leg of a bulk order (HL-native shape). order_type carries trigger
+ *  legs so take-profit / stop-loss work; omit it for a plain Gtc limit. */
+export interface HlBulkOrderItem {
+  coin: string;
+  is_buy: boolean;
+  sz: string;
+  limit_px: string;
+  reduce_only?: boolean;
+  order_type?: HlOrderType;
+  cloid?: string;
+}
+
 export interface HlBulkOrdersParams {
-  /** 1–20 orders. */
-  orders: HlOrderParams[];
+  /** 1–20 legs. */
+  orders: HlBulkOrderItem[];
+  /** Link an entry with its TP/SL legs. Defaults "na". */
+  grouping?: "na" | "normalTpsl" | "positionTpsl";
 }
 
 export interface HlModifyOrderParams {
@@ -174,6 +193,8 @@ export interface HyperliquidPosition {
 }
 export interface JupiterPosition {
   platform: "jupiter";
+  /** On-chain position account pubkey — pass to jupiter.close/modify/tpsl. */
+  position_id: string;
   asset: string;
   side: "long" | "short";
   size_usd: string;

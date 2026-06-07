@@ -1,6 +1,6 @@
 # polylayer
 
-Official TypeScript SDK for the [Polylayer](https://polylayer.xyz) API — Bearer-keyed trading on **Polymarket**, **Hyperliquid**, and **Jupiter Perpetuals** from one key.
+Official TypeScript SDK for the [Polylayer](https://polylayer.xyz) API for Bearer-keyed trading on **Polymarket**, **Hyperliquid**, and **Jupiter Perpetuals** from one key.
 
 One API key trades your deposited funds on every venue. Polylayer resolves the key to your identity, signs inside a TEE with your deposit-wallet authority, and submits to the underlying venue (Polymarket V2 CLOB, Hyperliquid Exchange, on-chain Jupiter Perpetuals).
 
@@ -55,8 +55,8 @@ for (const p of await client.positions.list()) {
 
 ## Conventions
 
-- **Money is strings in base units.** USDC sizes (`size_usdc`, `amount_usdc`) are 6-decimal integer strings — `"10000000"` is $10. Hyperliquid sizes/prices are decimal strings (`"0.001"`, `"65000"`). This avoids float precision loss on large balances.
-- **Idempotency is automatic.** Every write sends an `Idempotency-Key`; the SDK generates a UUID if you do not pass one. To make a specific call safe to retry yourself, pass `{ idempotencyKey }` as the second argument — replays return the original result, conflicts throw `idempotency_conflict`.
+- **Money is strings in base units.** USDC sizes (`size_usdc`, `amount_usdc`) are 6-decimal integer strings, `"10000000"` is $10. Hyperliquid sizes/prices are decimal strings (`"0.001"`, `"65000"`). This avoids float precision loss on large balances.
+- **Idempotency is automatic.** Every write sends an `Idempotency-Key`; the SDK generates a UUID if you do not pass one. To make a specific call safe to retry yourself, pass `{ idempotencyKey }` as the second argument, replays return the original result, conflicts throw `idempotency_conflict`.
 - **Errors are typed.** Non-2xx responses throw `PolylayerError` with `.code`, `.status`, `.retryAfter`, and `.body`. 429s and 5xx are retried automatically (`maxRetries`, default 2).
 
 ```ts
@@ -93,7 +93,7 @@ new Polylayer({
 | `client.orders.open({ platform? })` | `OpenOrder[]` |
 | `client.fills.list({ since?, cursor?, platform? })` | `{ fills, next_cursor }` |
 
-### Hyperliquid — `client.hyperliquid`
+### Hyperliquid (`client.hyperliquid`)
 
 `placeOrder`, `cancel({ coin, oid | cloid })`, `bulkOrders`, `placeTpsl`, `modifyOrder`, `setLeverage`, `setIsolatedMargin`, `transfer`, `withdraw`. Markets are auto-routed (vanilla and HIP-3); you never pass a `dex`.
 
@@ -110,24 +110,24 @@ await client.hyperliquid.placeTpsl({
   sl_px: "130",      // stop-loss trigger
 });
 
-// Cancel resting orders (asset-scoped) — by oid or cloid, from orders.open()
+// Cancel resting orders (asset-scoped) by oid or cloid, from orders.open()
 for (const o of await client.orders.open({ platform: "hyperliquid" })) {
   if (o.platform === "hyperliquid") await client.hyperliquid.cancel({ coin: o.coin, oid: o.oid });
 }
 ```
 
-### Jupiter Perpetuals — `client.jupiter`
+### Jupiter Perpetuals (`client.jupiter`)
 
 `open`, `close`, `modify`, `tpsl`, `markets()`. Backed by the JLP pool (SOL/BTC/ETH).
 
-### Polymarket — `client.polymarket`
+### Polymarket (`client.polymarket`)
 
 `placeOrder`, `cancel(orderId)`, `split`, `merge`, `redeem`.
 
 ## Key types
 
-- **Unified key (recommended)** — one key, every venue, no caps. You hold it; anyone with it can trade your funds until you revoke it.
-- **Per-platform key** — bound to one venue with TEE-enforced bounds (`max_total`, per-order size, allow-list, price band, expiry). Calls to the wrong venue return `wrong_platform`.
+- **Unified key (recommended)**: one key, every venue, no caps. You hold it; anyone with it can trade your funds until you revoke it.
+- **Per-platform key**: bound to one venue with TEE-enforced bounds (`max_total`, per-order size, allow-list, price band, expiry). Calls to the wrong venue return `wrong_platform`.
 
 Keys are minted and revoked from the dashboard (SIWS-authenticated). The SDK consumes an existing key.
 

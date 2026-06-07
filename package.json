@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Official TypeScript SDK for the Polylayer API — Bearer-keyed trading on Polymarket, Hyperliquid, and Jupiter Perpetuals.",
   "license": "MIT",
-  "homepage": "https://polylayer.fyi",
+  "homepage": "https://polylayer.xyz",
   "repository": {
     "type": "git",
     "url": "https://github.com/polylayer/polylayer-ts.git"

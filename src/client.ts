@@ -11,7 +11,7 @@ import { PolylayerError, type PolylayerErrorCode } from "./errors.js";
 export interface PolylayerOptions {
   /** Your `plyr_<key>` bearer key. Required. */
   apiKey: string;
-  /** Defaults to https://api.polylayer.fyi. */
+  /** Defaults to https://polylayer.xyz. */
   baseUrl?: string;
   /** Per-request timeout in ms. Defaults 30000. */
   timeoutMs?: number;
@@ -21,7 +21,7 @@ export interface PolylayerOptions {
   fetch?: typeof fetch;
 }
 
-const DEFAULT_BASE_URL = "https://api.polylayer.fyi";
+const DEFAULT_BASE_URL = "https://polylayer.xyz";
 
 interface RequestOpts {
   method: "GET" | "POST" | "DELETE";

@@ -1,6 +1,6 @@
 # polylayer
 
-Official TypeScript SDK for the [Polylayer](https://polylayer.fyi) API — Bearer-keyed trading on **Polymarket**, **Hyperliquid**, and **Jupiter Perpetuals** from one key.
+Official TypeScript SDK for the [Polylayer](https://polylayer.xyz) API — Bearer-keyed trading on **Polymarket**, **Hyperliquid**, and **Jupiter Perpetuals** from one key.
 
 One API key trades your deposited funds on every venue. Polylayer resolves the key to your identity, signs inside a TEE with your deposit-wallet authority, and submits to the underlying venue (Polymarket V2 CLOB, Hyperliquid Exchange, on-chain Jupiter Perpetuals).
 
@@ -39,7 +39,7 @@ const { tx_signature } = await client.jupiter.open({
 
 // Limit-buy YES at $0.62 on a Polymarket market ($10)
 await client.polymarket.placeOrder({
-  market_id: "0x1234…",        // CLOB token id (bytes32)
+  market_id: "71321045679…",   // CLOB token id (decimal uint256)
   side: "BUY",
   price: 0.62,
   size_usdc: "10000000",        // 6-decimal base units
@@ -76,7 +76,7 @@ try {
 ```ts
 new Polylayer({
   apiKey: "plyr_…",                  // required
-  baseUrl: "https://api.polylayer.fyi", // default
+  baseUrl: "https://polylayer.xyz", // default
   timeoutMs: 30_000,                 // per-request
   maxRetries: 2,                     // on 429 / 5xx
   fetch: customFetch,                // optional (Node <18, proxies, tests)

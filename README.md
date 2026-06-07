@@ -95,7 +95,26 @@ new Polylayer({
 
 ### Hyperliquid — `client.hyperliquid`
 
-`placeOrder`, `cancel(cloid)`, `bulkOrders`, `modifyOrder`, `setLeverage`, `setIsolatedMargin`, `transfer`, `withdraw`. Markets are auto-routed (vanilla and HIP-3); you never pass a `dex`.
+`placeOrder`, `cancel({ coin, oid | cloid })`, `bulkOrders`, `placeTpsl`, `modifyOrder`, `setLeverage`, `setIsolatedMargin`, `transfer`, `withdraw`. Markets are auto-routed (vanilla and HIP-3); you never pass a `dex`.
+
+```ts
+// Market open, then market close
+await client.hyperliquid.placeOrder({ coin: "ETH", is_buy: true, sz: "0.05", mode: "market_open", slippage: 0.03 });
+await client.hyperliquid.placeOrder({ coin: "ETH", is_buy: false, sz: "0.05", mode: "market_close", reduce_only: true });
+
+// Open a long with a linked take-profit + stop-loss in one call (normalTpsl)
+await client.hyperliquid.placeTpsl({
+  coin: "SOL", is_buy: true, sz: "0.5",
+  entry_px: "150",   // marketable limit entry
+  tp_px: "180",      // take-profit trigger
+  sl_px: "130",      // stop-loss trigger
+});
+
+// Cancel resting orders (asset-scoped) — by oid or cloid, from orders.open()
+for (const o of await client.orders.open({ platform: "hyperliquid" })) {
+  if (o.platform === "hyperliquid") await client.hyperliquid.cancel({ coin: o.coin, oid: o.oid });
+}
+```
 
 ### Jupiter Perpetuals — `client.jupiter`
 

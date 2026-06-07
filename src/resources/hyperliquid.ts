@@ -1,5 +1,6 @@
 import type { HttpClient } from "../client.js";
 import type {
+  HlBulkOrderItem,
   HlBulkOrdersParams,
   HlCancelParams,
   HlExchangeResult,
@@ -7,6 +8,7 @@ import type {
   HlLeverageParams,
   HlModifyOrderParams,
   HlOrderParams,
+  HlTpslParams,
   HlTransferParams,
   HlWithdrawParams,
 } from "../types.js";
@@ -66,6 +68,52 @@ export class HyperliquidResource {
       write: true,
       idempotencyKey: opts.idempotencyKey,
     });
+  }
+
+  /**
+   * Open a position with a take-profit and/or stop-loss in one linked
+   * (normalTpsl) bulk order — HL cancels the other leg when one fills.
+   * Convenience over bulkOrders that builds the trigger legs for you.
+   */
+  placeTpsl(
+    params: HlTpslParams,
+    opts: WriteOpts = {},
+  ): Promise<HlExchangeResult> {
+    if (params.tp_px === undefined && params.sl_px === undefined) {
+      throw new Error("hyperliquid.placeTpsl: provide tp_px and/or sl_px");
+    }
+    const closeBuy = !params.is_buy; // TP/SL close the position
+    const orders: HlBulkOrderItem[] = [
+      {
+        coin: params.coin,
+        is_buy: params.is_buy,
+        sz: params.sz,
+        limit_px: params.entry_px,
+        reduce_only: params.entry_reduce_only ?? false,
+      },
+    ];
+    if (params.tp_px !== undefined) {
+      orders.push({
+        coin: params.coin,
+        is_buy: closeBuy,
+        sz: params.sz,
+        limit_px: params.tp_px,
+        reduce_only: true,
+        // triggerPx must be numeric — the lambda formats it as a float.
+        order_type: { trigger: { isMarket: true, triggerPx: Number(params.tp_px), tpsl: "tp" } },
+      });
+    }
+    if (params.sl_px !== undefined) {
+      orders.push({
+        coin: params.coin,
+        is_buy: closeBuy,
+        sz: params.sz,
+        limit_px: params.sl_px,
+        reduce_only: true,
+        order_type: { trigger: { isMarket: true, triggerPx: Number(params.sl_px), tpsl: "sl" } },
+      });
+    }
+    return this.bulkOrders({ orders, grouping: "normalTpsl" }, opts);
   }
 
   modifyOrder(

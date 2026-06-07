@@ -27,6 +27,9 @@ export interface PmOrderParams {
   expiration_unix_seconds?: number;
   /** Negative-risk market flag (defaults false). */
   neg_risk?: boolean;
+  /** Market tick size (0.1 | 0.01 | 0.001 | 0.0001); defaults 0.01.
+   *  Drives the CLOB-required price/amount rounding. */
+  tick_size?: number;
 }
 
 export interface PmCtfParams {
@@ -67,7 +70,8 @@ export interface HlCancelParams {
 /** Native HL order_type — a plain limit or a trigger leg (TP/SL). */
 export type HlOrderType =
   | { limit: { tif: "Gtc" | "Ioc" | "Alo" } }
-  | { trigger: { isMarket: boolean; triggerPx: number | string; tpsl: "tp" | "sl" } };
+  // triggerPx is numeric — the venue formats it as a float.
+  | { trigger: { isMarket: boolean; triggerPx: number; tpsl: "tp" | "sl" } };
 
 /** One leg of a bulk order (HL-native shape). order_type carries trigger
  *  legs so take-profit / stop-loss work; omit it for a plain Gtc limit. */
@@ -86,6 +90,24 @@ export interface HlBulkOrdersParams {
   orders: HlBulkOrderItem[];
   /** Link an entry with its TP/SL legs. Defaults "na". */
   grouping?: "na" | "normalTpsl" | "positionTpsl";
+}
+
+/** Convenience: open a position with a take-profit and/or stop-loss in
+ *  one linked (normalTpsl) bulk order. */
+export interface HlTpslParams {
+  coin: string;
+  /** Entry direction — true = long/buy. */
+  is_buy: boolean;
+  /** Size in coin units (decimal string). */
+  sz: string;
+  /** Entry limit price (marketable for an immediate fill). */
+  entry_px: string;
+  /** Take-profit trigger price (provide tp_px and/or sl_px). */
+  tp_px?: string;
+  /** Stop-loss trigger price. */
+  sl_px?: string;
+  /** Reduce-only entry (rare). Default false. */
+  entry_reduce_only?: boolean;
 }
 
 export interface HlModifyOrderParams {

@@ -51,6 +51,17 @@ for (const p of await client.positions.list()) {
   if (p.platform === "jupiter") console.log(p.asset, p.size_usd);
   if (p.platform === "polymarket") console.log(p.market_id, p.size_usdc);
 }
+
+// Create an Advanced Orders Engine automation
+const strategy = {
+  schema_version: 2,
+  variables: [],
+  condition: { kind: "compare", variable_id: "p", op: ">=", value: 0.5 },
+  actions: [{ kind: "poly_order", market_id: "71321045679…", side: "BUY", price: 0.5, size_usdc: "1000000" }],
+};
+if ((await client.strategies.validate(strategy)).valid) {
+  await client.strategies.create(strategy);
+}
 ```
 
 ## Conventions
@@ -123,6 +134,12 @@ for (const o of await client.orders.open({ platform: "hyperliquid" })) {
 ### Polymarket (`client.polymarket`)
 
 `placeOrder`, `cancel(orderId)`, `split`, `merge`, `redeem`.
+
+### Advanced Orders Engine (`client.strategies`)
+
+`list`, `get(id)`, `create(body)`, `update(id, body)`, `cancel(id)`, `validate(body)`, `schema()`.
+
+`StrategyBodyV2` is a node-graph JSON document. Fetch `client.strategies.schema()` for the full current JSON Schema. Polymarket take-profit / stop-loss automations use this strategy API rather than a separate Polymarket TP/SL endpoint.
 
 ## Key types
 

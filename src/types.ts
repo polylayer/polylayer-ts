@@ -313,3 +313,113 @@ export interface PmOrderResult {
   status?: string;
   [key: string]: unknown;
 }
+
+// ─── Earn (USDC yield) ──────────────────────────────────────────────
+
+export type YieldProtocolId = "jupiter_lend" | "kamino" | "hyperlend";
+export type YieldChainId = "solana" | "hyperliquid";
+
+export interface EarnDepositParams {
+  /** Target protocol; the chain is derived from it. */
+  protocol: YieldProtocolId;
+  /** USDC amount in 6-decimal base units, e.g. "10000000" = $10. */
+  amount: string;
+}
+
+export interface EarnWithdrawParams {
+  protocol: YieldProtocolId;
+  /** Base units, or "max" to withdraw the whole position. */
+  amount: string | "max";
+}
+
+export interface EarnWriteResult {
+  ok: boolean;
+  /** Solana protocols. */
+  signature?: string;
+  /** HyperLend (EVM). */
+  approveTx?: string;
+  supplyTx?: string;
+  withdrawTx?: string;
+}
+
+export interface EarnProtocolSummary {
+  id: YieldProtocolId;
+  name: string;
+  apy: number | null;
+  /** Pool TVL in USD. */
+  tvlUsd: number | null;
+  positionUsdc: string;
+  earnedUsdc: string;
+}
+
+export interface EarnChainSummary {
+  chain: YieldChainId;
+  label: string;
+  apy: number | null;
+  bestProtocolId: YieldProtocolId | null;
+  poweredBy: string[];
+  positionUsdc: string;
+  earnedUsdc: string;
+  protocols: EarnProtocolSummary[];
+}
+
+export interface EarnSummary {
+  chains: EarnChainSummary[];
+}
+
+// ─── Advanced Orders Engine / Strategies ───────────────────────────
+
+/** StrategyBodyV2 is a node-graph JSON document. Use
+ *  client.strategies.schema() for the full generated JSON Schema. */
+export type StrategyBodyV2 = Record<string, unknown> & {
+  schema_version: 2;
+  variables: unknown[];
+  condition: unknown;
+  actions: unknown[];
+  settings?: {
+    fire_mode?: "false_to_true" | "true_to_false" | "both_edges" | "while_true";
+    fire_on_initial?: boolean;
+    max_firings?: number | null;
+    cooldown_s?: number;
+  };
+  label?: string;
+};
+
+export type StrategyStatus = "armed" | "fired" | "completed" | "cancelled" | "failed";
+
+export interface StrategyMetadata {
+  strategy_id: string;
+  user_id: string;
+  platform: Platform;
+  session_id: string;
+  status: StrategyStatus;
+  label?: string;
+  created_at: number;
+  updated_at: number;
+  fired_at?: number;
+  failure_reason?: string;
+}
+
+export interface StrategyListResponse {
+  strategies: StrategyMetadata[];
+}
+
+export interface StrategyCreateResponse {
+  strategy: StrategyMetadata;
+  worker_error?: string | null;
+}
+
+export interface StrategyWithBody {
+  meta: StrategyMetadata;
+  body: StrategyBodyV2;
+}
+
+export interface StrategyIssue {
+  path: string;
+  message: string;
+}
+
+export interface StrategyValidateResponse {
+  valid: boolean;
+  issues: StrategyIssue[];
+}

@@ -17,12 +17,18 @@ import { HttpClient, type PolylayerOptions } from "./client.js";
 import { HyperliquidResource } from "./resources/hyperliquid.js";
 import { JupiterResource } from "./resources/jupiter.js";
 import { PolymarketResource } from "./resources/polymarket.js";
+import { EarnResource } from "./resources/earn.js";
 import { ReadsResource } from "./resources/reads.js";
+import { StrategiesResource } from "./resources/strategies.js";
 
 export class Polylayer {
   readonly hyperliquid: HyperliquidResource;
   readonly jupiter: JupiterResource;
   readonly polymarket: PolymarketResource;
+  /** USDC yield (earn) across Solana + Hyperliquid. */
+  readonly earn: EarnResource;
+  /** Advanced Orders Engine automations. */
+  readonly strategies: StrategiesResource;
 
   private readonly reads: ReadsResource;
 
@@ -31,6 +37,8 @@ export class Polylayer {
     this.hyperliquid = new HyperliquidResource(http);
     this.jupiter = new JupiterResource(http);
     this.polymarket = new PolymarketResource(http);
+    this.earn = new EarnResource(http);
+    this.strategies = new StrategiesResource(http);
     this.reads = new ReadsResource(http);
   }
 

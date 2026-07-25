@@ -24,7 +24,7 @@ export interface PolylayerOptions {
 const DEFAULT_BASE_URL = "https://polylayer.xyz";
 
 interface RequestOpts {
-  method: "GET" | "POST" | "DELETE";
+  method: "GET" | "POST" | "PATCH" | "DELETE";
   path: string;
   /** JSON body for writes. */
   body?: unknown;

@@ -237,3 +237,54 @@ describe("reads", () => {
     expect(m.calls[2].url).toBe("https://api.test/api/v1/fills?since=1&platform=hyperliquid");
   });
 });
+
+describe("strategies resource", () => {
+  const strategyBody = {
+    schema_version: 2 as const,
+    variables: [],
+    condition: { kind: "compare", variable_id: "p", op: ">=", value: 0.5 },
+    actions: [{ kind: "poly_order", market_id: "token", side: "BUY", price: 0.5, size_usdc: "1000000" }],
+    label: "test automation",
+  };
+
+  it("list/get/schema use GET routes", async () => {
+    const m = mock([
+      { body: { strategies: [] } },
+      { body: { meta: { strategy_id: "s1" }, body: strategyBody } },
+      { body: { type: "object" } },
+    ]);
+    const c = client(m);
+    await c.strategies.list();
+    await c.strategies.get("s1");
+    await c.strategies.schema();
+    expect(m.calls.map((x) => [x.method, x.url])).toEqual([
+      ["GET", "https://api.test/api/v1/strategies"],
+      ["GET", "https://api.test/api/v1/strategies/s1"],
+      ["GET", "https://api.test/api/v1/strategies/schema"],
+    ]);
+  });
+
+  it("create/update/cancel/validate hit automation routes", async () => {
+    const m = mock([
+      { body: { strategy: { strategy_id: "s1" } } },
+      { body: { ok: true } },
+      { body: { ok: true } },
+      { body: { valid: true, issues: [] } },
+    ]);
+    const c = client(m);
+    await c.strategies.create(strategyBody, { idempotencyKey: "create-key" });
+    await c.strategies.update("s1", strategyBody, { idempotencyKey: "update-key" });
+    await c.strategies.cancel("s1", { idempotencyKey: "cancel-key" });
+    await c.strategies.validate(strategyBody);
+    expect(m.calls.map((x) => [x.method, x.url])).toEqual([
+      ["POST", "https://api.test/api/v1/strategies"],
+      ["PATCH", "https://api.test/api/v1/strategies/s1"],
+      ["DELETE", "https://api.test/api/v1/strategies/s1"],
+      ["POST", "https://api.test/api/v1/strategies/validate"],
+    ]);
+    expect(m.calls[0].headers["Idempotency-Key"]).toBe("create-key");
+    expect(m.calls[1].headers["Idempotency-Key"]).toBe("update-key");
+    expect(m.calls[2].headers["Idempotency-Key"]).toBe("cancel-key");
+    expect(m.calls[3].headers["Idempotency-Key"]).toBeUndefined();
+  });
+});

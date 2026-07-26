@@ -314,6 +314,184 @@ export interface PmOrderResult {
   [key: string]: unknown;
 }
 
+// ─── Paper trading ──────────────────────────────────────────────────
+
+export type PaperVenue = "polymarket" | "hyperliquid" | "jupiter";
+export type PaperVisibility = "public" | "private";
+
+export interface PaperAccount {
+  id: string;
+  paperAccountId: string;
+  username: string;
+  displayName: string;
+  description?: string;
+  avatarUrl?: string;
+  visibility: PaperVisibility;
+  startingCapitalCents: number;
+  startingCapitalUsd: number;
+  status?: string;
+  cashCents?: number;
+  equityCents?: number;
+  buyingPowerCents?: number;
+  reservedCashCents?: number;
+  realizedPnlCents?: number;
+  unrealizedPnlCents?: number;
+  returnBps?: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface PaperAccountCreateParams {
+  username: string;
+  displayName?: string;
+  description?: string;
+  visibility?: PaperVisibility;
+  /** Optional simulated starting capital. Defaults to $100,000; max $100,000. */
+  startingCapitalUsd?: number | string;
+  /** Alternative to startingCapitalUsd, in cents. Max 10,000,000. */
+  startingCapitalCents?: number;
+}
+
+export interface PaperAccountPatchParams {
+  displayName?: string;
+  description?: string;
+  visibility?: PaperVisibility;
+}
+
+export interface PaperAccountsResponse {
+  accounts: PaperAccount[];
+  active?: { mode: "live" } | { mode: "paper"; paperAccountId: string };
+}
+
+export interface PaperAccountResponse {
+  account: PaperAccount;
+}
+
+export interface PaperPosition {
+  venue: PaperVenue;
+  instrumentId: string;
+  marketId?: string;
+  outcomeId?: string;
+  positionSide?: "LONG" | "SHORT";
+  quantity: number;
+  avgEntryPriceMicros: number;
+  costBasisCents: number;
+  markPriceMicros: number;
+  marketValueCents: number;
+  unrealizedPnlCents: number;
+  realizedPnlCents: number;
+  createdAt: number;
+  updatedAt: number;
+  [key: string]: unknown;
+}
+
+export interface PaperOrder {
+  orderId: string;
+  venue: PaperVenue;
+  instrumentId: string;
+  marketId?: string;
+  outcomeId?: string;
+  side: "BUY" | "SELL";
+  orderType: "market" | "limit";
+  timeInForce: string;
+  limitPriceMicros?: number;
+  reservedCashCents?: number;
+  reservedQuantity?: number;
+  quantity: number;
+  filledQuantity: number;
+  remainingQuantity: number;
+  status: "open" | "partially_filled" | "filled" | "cancelled" | "rejected";
+  createdAt: number;
+  updatedAt: number;
+  [key: string]: unknown;
+}
+
+export interface PaperFill {
+  fillId: string;
+  orderId: string;
+  venue: PaperVenue;
+  instrumentId: string;
+  marketId?: string;
+  outcomeId?: string;
+  side: "BUY" | "SELL";
+  priceMicros: number;
+  quantity: number;
+  notionalCents: number;
+  feeCents: number;
+  source: string;
+  sourceTimestamp: number;
+  createdAt: number;
+  updatedAt: number;
+  [key: string]: unknown;
+}
+
+export interface PaperPortfolioResponse {
+  account: PaperAccount;
+  positions: PaperPosition[];
+  orders: PaperOrder[];
+  fills: PaperFill[];
+}
+
+export interface PaperOrdersResponse {
+  orders: PaperOrder[];
+}
+
+export interface PaperFillsResponse {
+  fills: PaperFill[];
+  next_cursor: string | null;
+}
+
+export type PaperOrderParams =
+  | {
+      venue: "polymarket";
+      market_id?: string;
+      marketId?: string;
+      token_id?: string;
+      tokenId?: string;
+      side: "BUY" | "SELL";
+      price: number;
+      /** USDC base units. Converted to shares at price by the v1 API. */
+      size_usdc?: string | number;
+      /** Outcome shares. */
+      size?: number;
+      order_type?: "GTC" | "FOK" | "GTD" | "MARKET";
+      orderType?: "GTC" | "FOK" | "GTD" | "MARKET";
+      client_order_id?: string;
+      clientOrderId?: string;
+    }
+  | {
+      venue: "hyperliquid" | "jupiter";
+      instrument_id?: string;
+      instrumentId?: string;
+      coin?: string;
+      asset?: string;
+      side?: "LONG" | "SHORT";
+      is_buy?: boolean;
+      size_usd?: number;
+      sizeUsd?: number;
+      base_size?: string | number;
+      baseSize?: string | number;
+      sz?: string | number;
+      mark_price?: number;
+      markPrice?: number;
+      collateral_usd?: number;
+      collateralUsd?: number;
+      reduce_only?: boolean;
+      reduceOnly?: boolean;
+      client_order_id?: string;
+      clientOrderId?: string;
+    };
+
+export interface PaperOrderResult {
+  success?: boolean;
+  paper?: boolean;
+  account?: { id: string; username: string; displayName: string };
+  data?: Record<string, unknown>;
+  portfolio?: Record<string, unknown>;
+  order?: PaperOrder;
+  [key: string]: unknown;
+}
+
 // ─── Earn (USDC yield) ──────────────────────────────────────────────
 
 export type YieldProtocolId = "jupiter_lend" | "kamino" | "hyperlend";

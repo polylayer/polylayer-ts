@@ -20,6 +20,7 @@ import { PolymarketResource } from "./resources/polymarket.js";
 import { EarnResource } from "./resources/earn.js";
 import { ReadsResource } from "./resources/reads.js";
 import { StrategiesResource } from "./resources/strategies.js";
+import { PaperResource } from "./resources/paper.js";
 
 export class Polylayer {
   readonly hyperliquid: HyperliquidResource;
@@ -29,6 +30,8 @@ export class Polylayer {
   readonly earn: EarnResource;
   /** Advanced Orders Engine automations. */
   readonly strategies: StrategiesResource;
+  /** Persisted paper trading accounts and simulated execution. */
+  readonly paper: PaperResource;
 
   private readonly reads: ReadsResource;
 
@@ -39,6 +42,7 @@ export class Polylayer {
     this.polymarket = new PolymarketResource(http);
     this.earn = new EarnResource(http);
     this.strategies = new StrategiesResource(http);
+    this.paper = new PaperResource(http);
     this.reads = new ReadsResource(http);
   }
 

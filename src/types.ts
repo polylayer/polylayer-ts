@@ -551,6 +551,10 @@ export interface EarnSummary {
  *  client.strategies.schema() for the full generated JSON Schema. */
 export type StrategyBodyV2 = Record<string, unknown> & {
   schema_version: 2;
+  /** Live execution session. The API overwrites this from the bearer key. */
+  session_id?: string;
+  /** Owned paper account to execute against instead of a live session. */
+  paper_account_id?: string;
   variables: unknown[];
   condition: unknown;
   actions: unknown[];
@@ -569,7 +573,8 @@ export interface StrategyMetadata {
   strategy_id: string;
   user_id: string;
   platform: Platform;
-  session_id: string;
+  session_id?: string;
+  paper_account_id?: string;
   status: StrategyStatus;
   label?: string;
   created_at: number;

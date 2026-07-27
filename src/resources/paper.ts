@@ -61,7 +61,7 @@ export class PaperResource {
     });
   }
 
-  /** Full paper portfolio: account, positions, orders, fills. */
+  /** Full paper portfolio: account state, positions, orders, fills, and equity ledger. */
   portfolio(paperAccountId: string): Promise<PaperPortfolioResponse> {
     return this.http.request({
       method: "GET",

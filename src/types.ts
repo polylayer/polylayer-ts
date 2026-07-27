@@ -425,11 +425,45 @@ export interface PaperFill {
   [key: string]: unknown;
 }
 
+export interface PaperAccountState {
+  paperAccountId: string;
+  ownerUserId: string;
+  cashCents: number;
+  equityCents: number;
+  buyingPowerCents: number;
+  reservedCashCents?: number;
+  realizedPnlCents: number;
+  unrealizedPnlCents: number;
+  openOrderCount: number;
+  positionCount: number;
+  version: number;
+  createdAt: number;
+  updatedAt: number;
+  [key: string]: unknown;
+}
+
+export interface PaperLedgerEntry {
+  paperAccountId: string;
+  ownerUserId: string;
+  entryId: string;
+  reason: string;
+  amountCents: number;
+  cashAfterCents: number;
+  equityAfterCents: number;
+  refType?: string;
+  refId?: string;
+  createdAt: number;
+  updatedAt: number;
+  [key: string]: unknown;
+}
+
 export interface PaperPortfolioResponse {
   account: PaperAccount;
+  state: PaperAccountState;
   positions: PaperPosition[];
   orders: PaperOrder[];
   fills: PaperFill[];
+  ledger: PaperLedgerEntry[];
 }
 
 export interface PaperOrdersResponse {
@@ -494,7 +528,11 @@ export interface PaperOrderResult {
 
 // ─── Earn (USDC yield) ──────────────────────────────────────────────
 
-export type YieldProtocolId = "jupiter_lend" | "kamino" | "hyperlend";
+export type YieldProtocolId =
+  | "jupiter_lend"
+  | "kamino_rockawayx"
+  | "hyperlend"
+  | "felix";
 export type YieldChainId = "solana" | "hyperliquid";
 
 export interface EarnDepositParams {
@@ -517,6 +555,8 @@ export interface EarnWriteResult {
   /** HyperLend (EVM). */
   approveTx?: string;
   supplyTx?: string;
+  /** Felix (EVM). */
+  depositTx?: string;
   withdrawTx?: string;
 }
 

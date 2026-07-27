@@ -11,8 +11,8 @@ interface WriteOpts {
 }
 
 /**
- * USDC yield (earn). Deposit/withdraw on Solana (Jupiter Lend, Kamino) and
- * Hyperliquid (HyperLend) from one unified key. The protocols are abstracted;
+ * USDC yield (earn). Deposit/withdraw on Solana (Jupiter Lend, RockawayX's
+ * Kamino vault) and Hyperliquid (HyperLend, Felix) from one unified key. The protocols are abstracted;
  * pick a `protocol` directly, or read `summary()` and deposit into the chain's
  * best APY (`bestProtocolId`). Requires a unified key.
  */

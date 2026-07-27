@@ -22,7 +22,7 @@ export interface PmOrderParams {
   size_usdc: string;
   post_only?: boolean;
   /** Defaults GTC server-side. */
-  order_type?: "GTC" | "FOK" | "GTD";
+  order_type?: "GTC" | "FAK" | "FOK" | "GTD";
   /** Required when order_type === "GTD". */
   expiration_unix_seconds?: number;
   /** Negative-risk market flag (defaults false). */

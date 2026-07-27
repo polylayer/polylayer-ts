@@ -1,6 +1,7 @@
 import type { HttpClient } from "../client.js";
 import type {
   PaperAccountCreateParams,
+  PaperAccountDeleteResponse,
   PaperAccountPatchParams,
   PaperAccountResponse,
   PaperAccountsResponse,
@@ -56,6 +57,19 @@ export class PaperResource {
       method: "PATCH",
       path: `/paper/accounts/${encodeURIComponent(paperAccountId)}`,
       body: params,
+      write: true,
+      idempotencyKey: opts.idempotencyKey,
+    });
+  }
+
+  /** Permanently remove a sandbox. Paper capital cannot be reset or topped up. */
+  deleteAccount(
+    paperAccountId: string,
+    opts: WriteOpts = {},
+  ): Promise<PaperAccountDeleteResponse> {
+    return this.http.request({
+      method: "DELETE",
+      path: `/paper/accounts/${encodeURIComponent(paperAccountId)}`,
       write: true,
       idempotencyKey: opts.idempotencyKey,
     });

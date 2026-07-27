@@ -342,7 +342,8 @@ export interface PaperAccount {
 }
 
 export interface PaperAccountCreateParams {
-  username: string;
+  /** Required only when creating the user's first paper sandbox. */
+  username?: string;
   displayName?: string;
   description?: string;
   visibility?: PaperVisibility;
@@ -365,6 +366,11 @@ export interface PaperAccountsResponse {
 
 export interface PaperAccountResponse {
   account: PaperAccount;
+}
+
+export interface PaperAccountDeleteResponse {
+  ok: true;
+  active: { mode: "live" } | { mode: "paper"; paperAccountId: string };
 }
 
 export interface PaperPosition {

@@ -109,6 +109,35 @@ describe("client transport", () => {
   });
 });
 
+describe("paper resource", () => {
+  it("creates later sandboxes without another username and deletes by account id", async () => {
+    const m = mock([
+      { body: { account: { paperAccountId: "paper_2" } } },
+      { body: { ok: true, active: { mode: "live" } } },
+    ]);
+    const c = client(m);
+    await c.paper.createAccount({
+      displayName: "Second sandbox",
+      startingCapitalUsd: 25_000,
+    });
+    await c.paper.deleteAccount("paper_2", { idempotencyKey: "delete-paper-2" });
+
+    expect(m.calls[0]).toMatchObject({
+      method: "POST",
+      url: "https://api.test/api/v1/paper/accounts",
+      body: {
+        displayName: "Second sandbox",
+        startingCapitalUsd: 25_000,
+      },
+    });
+    expect(m.calls[1]).toMatchObject({
+      method: "DELETE",
+      url: "https://api.test/api/v1/paper/accounts/paper_2",
+    });
+    expect(m.calls[1].headers["Idempotency-Key"]).toBe("delete-paper-2");
+  });
+});
+
 describe("hyperliquid resource", () => {
   it("placeOrder POSTs the body to /hyperliquid/orders", async () => {
     const m = mock([{ body: {} }]);
